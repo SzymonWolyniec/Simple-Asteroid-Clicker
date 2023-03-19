@@ -31,6 +31,12 @@ public class GameManager : MonoBehaviour
 
     private int poolStartSize = 10;
 
+    // Double click system
+
+    private float _lastClickTime = 0f;
+    private float _maxTimeBetweenClicks = 0.2f;
+    private GameObject _lastClickedGameObj;
+
     void Awake()
     {
         _poolingSystemManager = new CubesPoolingManager(poolStartSize, this);
@@ -56,13 +62,32 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0)) // jeśli użytkownik kliknął myszką
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // stwórz promień z pozycji myszki
+            // Stwórz promień z pozycji myszki
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hit)) // wykonaj raycast
+            // Sprawdź czy promień uderzył w jakiś obiekt
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                // jeśli raycast trafił w obiekt, to wywołaj funkcję Clicked na tym obiekcie
-                hit.collider.gameObject.SendMessage("CubeClicked", SendMessageOptions.DontRequireReceiver);
+                // Pojedynczy klik
+                if ((Time.time - _lastClickTime) > _maxTimeBetweenClicks)
+                {
+                    _lastClickedGameObj = hit.collider.gameObject;
+                }
+                // Podwójny klik
+                else
+                {
+                    // Jeśli dwa razy kliknięto ten sam obiekt
+                    if (_lastClickedGameObj == hit.collider.gameObject)
+                    {
+                        hit.collider.gameObject.SendMessage("CubeClicked", SendMessageOptions.DontRequireReceiver);
+                        _lastClickedGameObj = null;
+                    }
+                    else
+                        _lastClickedGameObj = hit.collider.gameObject;
+                }
             }
+
+            _lastClickTime = Time.time;
         }
 
         if (_currentScreenSize.x != Screen.width || _currentScreenSize.y != Screen.height)
