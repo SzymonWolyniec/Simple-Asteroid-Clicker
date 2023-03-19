@@ -4,23 +4,40 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private int maxCubesOnScene = 10;
+    private int minCubesOnScene = 5;
+
+    private int maxCubeLifetimeSec = 3;
+    private int minCubeLifetimeSec = 1;
+
     private GameObject _testCube;
     private Vector3 _screenWorldScaleSize;
     private float xMin, xMax, yMin, yMax;
 
-    private int borderWidthPx = 5;
-    private int borderMarginPx = 15;
-    private int marginSafeBuffer;
+    private int _borderWidthPx = 5;
+    private int _borderMarginPx = 15;
+    private int _marginSafeBuffer;
 
     private float _maxCubeSize;
 
     private Vector2 _currentScreenSize;
 
+    // Pooling system
+
+    private CubesPoolingManager _poolingSystemManager;
+    private int poolSize = 10;
+
+    void Awake()
+    {
+        _poolingSystemManager = new CubesPoolingManager(poolSize);
+        _poolingSystemManager.PreparePool();
+    }
+
     void Start()
     {
-        _testCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        _testCube = _poolingSystemManager.GetSingleItem();
 
-        marginSafeBuffer = borderWidthPx + borderMarginPx;
+        _marginSafeBuffer = _borderWidthPx + _borderMarginPx;
 
         // Wzór na przekątną sześcianu, (max szerokośc np. gdy Cube jest obrócony x = 45, y = 45);
         _maxCubeSize = _testCube.transform.localScale.x * Mathf.Sqrt(3);
@@ -52,7 +69,7 @@ public class GameManager : MonoBehaviour
     {
         _currentScreenSize = new Vector2(Screen.width, Screen.height);
 
-        _screenWorldScaleSize = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width - marginSafeBuffer, Screen.height - marginSafeBuffer, 0));
+        _screenWorldScaleSize = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width - _marginSafeBuffer, Screen.height - _marginSafeBuffer, 0));
 
         xMax = _screenWorldScaleSize.x - (_maxCubeSize / 2);
         xMin = -_screenWorldScaleSize.x + (_maxCubeSize / 2);
