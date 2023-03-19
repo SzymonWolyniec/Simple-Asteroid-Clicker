@@ -32,6 +32,7 @@ public class CubesPoolingManager
     public void ReturnSingleItem(GameObject singleItemToReturn)
     {
         singleItemToReturn.SetActive(false);
+
         _singleItemsPool.Enqueue(singleItemToReturn);
     }
 
