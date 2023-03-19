@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private const string CUBE_TAG = "GameCube";
+
     private int _minCubesOnScene = 5;
     private int _maxCubesOnScene = 10;
     private int _currentCubesOnScene = 0;
@@ -99,12 +101,34 @@ public class GameManager : MonoBehaviour
     private void AddNewCubeToScene()
     {
         GameObject newCube = _poolingSystemManager.GetSingleItem();
+        float randomX, randomY;
+        Quaternion randomRot;
 
-        float randomX = Random.Range(_xMin, _xMax);
-        float randomY = Random.Range(_yMin, _yMax);
+        bool isCollision;
+
+        do
+        {
+            isCollision = false;
+
+            randomX = Random.Range(_xMin, _xMax);
+            randomY = Random.Range(_yMin, _yMax);
+            randomRot = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
+
+            Collider[] hitColliders = Physics.OverlapBox(new Vector3(randomX, randomY, 0), new Vector3(0.5f, 0.5f, 0.5f), randomRot, LayerMask.GetMask("Default"));
+
+            foreach (Collider hitCollider in hitColliders)
+            {
+                if (hitCollider.gameObject.activeSelf && hitCollider.gameObject.CompareTag(CUBE_TAG))
+                {
+                    // Znaleziono kolizję z aktywnym sześcianem - wykonujemy odpowiednie akcje
+                    isCollision = true;
+                }
+            }
+
+        } while (isCollision);
 
         newCube.transform.position = new Vector3(randomX, randomY, 0);
-        newCube.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
+        newCube.transform.rotation = randomRot;
 
         newCube.SetActive(true);
 
@@ -153,5 +177,10 @@ public class GameManager : MonoBehaviour
                 AddNewCubeToScene();
             }
         }
+    }
+
+    public string GetCubeTag()
+    {
+        return CUBE_TAG;
     }
 }

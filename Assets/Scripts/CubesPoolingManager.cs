@@ -44,6 +44,7 @@ public class CubesPoolingManager
         GameObject newPoolItem = GameObject.CreatePrimitive(PrimitiveType.Cube);
         newPoolItem.SetActive(false);
 
+        newPoolItem.tag = _gameManager.GetCubeTag();
         newPoolItem.AddComponent<SingleCube>().AddGameManager(_gameManager);
 
         _singleItemsPool.Enqueue(newPoolItem);
