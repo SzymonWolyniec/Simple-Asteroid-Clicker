@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SingleCube : MonoBehaviour
 {
-    private CubesPoolingManager _poolingSystemManager;
+    private GameManager _gameManager;
 
     float minTimeToDeactivate = 500.0f;
     float maxTimeToDeactivate = 1000.0f;
@@ -31,12 +31,12 @@ public class SingleCube : MonoBehaviour
         yield return new WaitForSeconds(Random.Range(minTimeToDeactivate, maxTimeToDeactivate));
 
         _cubeRenderer.material.color = Color.white;
-        _poolingSystemManager.ReturnSingleItem(this.gameObject);
+        _gameManager.PoolingSystemManager.ReturnSingleItem(this.gameObject);
     }
 
-    public void AddPoolManager(CubesPoolingManager poolingSystemManager)
+    public void AddGameManager(GameManager gameManager)
     {
-        _poolingSystemManager = poolingSystemManager;
+        _gameManager = gameManager;
     }
 
     private void CubeClicked()
@@ -52,7 +52,10 @@ public class SingleCube : MonoBehaviour
                         StopCoroutine(_deactivateCoroutine);
 
                         _cubeRenderer.material.color = Color.white;
-                        _poolingSystemManager.ReturnSingleItem(this.gameObject);
+                        _gameManager.PoolingSystemManager.ReturnSingleItem(this.gameObject);
+
+                        _gameManager.CurrentCubesOnScene -= 1;
+                        _gameManager.TryAddNewCubesToScene();
                     }
                 }
                 break;

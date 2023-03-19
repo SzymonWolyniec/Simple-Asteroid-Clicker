@@ -3,12 +3,15 @@ using System.Collections.Generic;
 
 public class CubesPoolingManager
 {
+    private GameManager _gameManager;
+
     private int _poolStartSize;
     private Queue<GameObject> _singleItemsPool = new Queue<GameObject>();
 
-    public CubesPoolingManager(int poolSize)
+    public CubesPoolingManager(int poolSize, GameManager gameManager)
     {
         _poolStartSize = poolSize;
+        _gameManager = gameManager;
     }
 
     public void PreparePool()
@@ -41,7 +44,7 @@ public class CubesPoolingManager
         GameObject newPoolItem = GameObject.CreatePrimitive(PrimitiveType.Cube);
         newPoolItem.SetActive(false);
 
-        newPoolItem.AddComponent<SingleCube>().AddPoolManager(this);
+        newPoolItem.AddComponent<SingleCube>().AddGameManager(_gameManager);
 
         _singleItemsPool.Enqueue(newPoolItem);
     }

@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private int minCubesOnScene = 5;
-    private int maxCubesOnScene = 10;
+    private int _minCubesOnScene = 5;
+    private int _maxCubesOnScene = 10;
+    private int _currentCubesOnScene = 0;
+    public int CurrentCubesOnScene
+    {
+        get { return _currentCubesOnScene; }
+        set { _currentCubesOnScene = value; }
+    }
 
     private Vector3 _screenWorldScaleSize;
-    private float xMin, xMax, yMin, yMax;
+    private float _xMin, _xMax, _yMin, _yMax;
 
     private int _borderWidthPx = 5;
     private int _borderMarginPx = 15;
@@ -21,11 +27,13 @@ public class GameManager : MonoBehaviour
     // Pooling system
 
     private CubesPoolingManager _poolingSystemManager;
-    private int poolSize = 10;
+    public CubesPoolingManager PoolingSystemManager => _poolingSystemManager;
+
+    private int poolStartSize = 10;
 
     void Awake()
     {
-        _poolingSystemManager = new CubesPoolingManager(poolSize);
+        _poolingSystemManager = new CubesPoolingManager(poolStartSize, this);
         _poolingSystemManager.PreparePool();
     }
 
@@ -38,7 +46,7 @@ public class GameManager : MonoBehaviour
 
         SetCubesPositionRange();
 
-        for (int i = 0; i < minCubesOnScene; i++)
+        for (int i = 0; i < _minCubesOnScene; i++)
         {
             AddNewCubeToScene();
         }
@@ -67,13 +75,15 @@ public class GameManager : MonoBehaviour
     {
         GameObject newCube = _poolingSystemManager.GetSingleItem();
 
-        float randomX = Random.Range(xMin, xMax);
-        float randomY = Random.Range(yMin, yMax);
+        float randomX = Random.Range(_xMin, _xMax);
+        float randomY = Random.Range(_yMin, _yMax);
 
         newCube.transform.position = new Vector3(randomX, randomY, 0);
         newCube.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
 
         newCube.SetActive(true);
+
+        _currentCubesOnScene++;
     }
 
     private void SetCubesPositionRange()
@@ -82,11 +92,41 @@ public class GameManager : MonoBehaviour
 
         _screenWorldScaleSize = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width - _marginSafeBuffer, Screen.height - _marginSafeBuffer, 0));
 
-        xMax = _screenWorldScaleSize.x - (_maxCubeSize / 2);
-        xMin = -_screenWorldScaleSize.x + (_maxCubeSize / 2);
+        _xMax = _screenWorldScaleSize.x - (_maxCubeSize / 2);
+        _xMin = -_screenWorldScaleSize.x + (_maxCubeSize / 2);
 
-        yMax = _screenWorldScaleSize.y - (_maxCubeSize / 2);
-        yMin = -_screenWorldScaleSize.y + (_maxCubeSize / 2);
+        _yMax = _screenWorldScaleSize.y - (_maxCubeSize / 2);
+        _yMin = -_screenWorldScaleSize.y + (_maxCubeSize / 2);
 
+    }
+
+    public void TryAddNewCubesToScene()
+    {
+        if (_currentCubesOnScene < _minCubesOnScene)
+        {
+            for (int i = 0; i < (_minCubesOnScene - _currentCubesOnScene); i++)
+            {
+                AddNewCubeToScene();
+            }
+        }
+
+        if (_currentCubesOnScene < _maxCubesOnScene - 1)
+        {
+            // 0, 1 lub 2 nowe obiekty typu cube
+            int newCubesToSpawn = Random.Range(0, 3);
+            for (int i = 0; i < newCubesToSpawn; i++)
+            {
+                AddNewCubeToScene();
+            }
+        }
+        else if (_currentCubesOnScene < _maxCubesOnScene)
+        {
+            // 0 lub 1 nowe obiekty typu cube
+            int newCubesToSpawn = Random.Range(0, 2);
+            for (int i = 0; i < newCubesToSpawn; i++)
+            {
+                AddNewCubeToScene();
+            }
+        }
     }
 }
