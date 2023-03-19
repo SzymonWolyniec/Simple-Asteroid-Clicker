@@ -15,33 +15,33 @@ public class CubesPoolingManager
     {
         for (int i = 0; i < _poolStartSize; i++)
         {
-            GameObject newPoolItem = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            newPoolItem.SetActive(false);
-
-            _singleItemsPool.Enqueue(newPoolItem);
+            CreateNewSingleItem();
         }
-
     }
 
     public GameObject GetSingleItem()
     {
         if (_singleItemsPool.Count == 0)
-        {
-            GameObject newPoolItem = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            newPoolItem.SetActive(false);
-
-            _singleItemsPool.Enqueue(newPoolItem);
-        }
+            CreateNewSingleItem();
 
         GameObject singleItemFromPool = _singleItemsPool.Dequeue();
-        singleItemFromPool.SetActive(true);
 
         return singleItemFromPool;
     }
 
-     public void ReturnSingleItem(GameObject singleItemToReturn)
+    public void ReturnSingleItem(GameObject singleItemToReturn)
     {
         singleItemToReturn.SetActive(false);
         _singleItemsPool.Enqueue(singleItemToReturn);
+    }
+
+    private void CreateNewSingleItem()
+    {
+        GameObject newPoolItem = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        newPoolItem.SetActive(false);
+
+        newPoolItem.AddComponent<SingleCube>().AddPoolManager(this);
+
+        _singleItemsPool.Enqueue(newPoolItem);
     }
 }

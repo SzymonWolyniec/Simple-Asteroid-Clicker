@@ -4,13 +4,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private int maxCubesOnScene = 10;
     private int minCubesOnScene = 5;
+    private int maxCubesOnScene = 10;
 
-    private int maxCubeLifetimeSec = 3;
-    private int minCubeLifetimeSec = 1;
-
-    private GameObject _testCube;
     private Vector3 _screenWorldScaleSize;
     private float xMin, xMax, yMin, yMax;
 
@@ -35,34 +31,49 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        _testCube = _poolingSystemManager.GetSingleItem();
-
         _marginSafeBuffer = _borderWidthPx + _borderMarginPx;
 
         // Wzór na przekątną sześcianu, (max szerokośc np. gdy Cube jest obrócony x = 45, y = 45);
-        _maxCubeSize = _testCube.transform.localScale.x * Mathf.Sqrt(3);
+        _maxCubeSize = 1 * Mathf.Sqrt(3);
 
         SetCubesPositionRange();
 
-        InvokeRepeating("ChangeCubePosAndRot", 0f, 1f);
+        for (int i = 0; i < minCubesOnScene; i++)
+        {
+            AddNewCubeToScene();
+        }
     }
 
-    private void ChangeCubePosAndRot()
+    void Update()
     {
-        float randomX = (xMax - xMin) * Random.value + xMin;
-        float randomY = (yMax - yMin) * Random.value + yMin;
+        if (Input.GetMouseButtonDown(0)) // jeśli użytkownik kliknął myszką
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // stwórz promień z pozycji myszki
 
-        _testCube.transform.position = new Vector3(randomX, randomY, 0);
-        _testCube.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
+            if (Physics.Raycast(ray, out RaycastHit hit)) // wykonaj raycast
+            {
+                // jeśli raycast trafił w obiekt, to wywołaj funkcję Clicked na tym obiekcie
+                hit.collider.gameObject.SendMessage("CubeClicked", SendMessageOptions.DontRequireReceiver);
+            }
+        }
 
-    }
-
-    void FixedUpdate()
-    {
         if (_currentScreenSize.x != Screen.width || _currentScreenSize.y != Screen.height)
         {
             SetCubesPositionRange();
         }
+    }
+
+    private void AddNewCubeToScene()
+    {
+        GameObject newCube = _poolingSystemManager.GetSingleItem();
+
+        float randomX = Random.Range(xMin, xMax);
+        float randomY = Random.Range(yMin, yMax);
+
+        newCube.transform.position = new Vector3(randomX, randomY, 0);
+        newCube.transform.rotation = Quaternion.Euler(new Vector3(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)));
+
+        newCube.SetActive(true);
     }
 
     private void SetCubesPositionRange()
