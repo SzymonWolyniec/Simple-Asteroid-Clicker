@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     private DesignManager _desingManager;
 
     private int points = 0;
-    private int maxPoints = 15;
+    private int maxPoints = 1;
     private const string CUBE_TAG = "GameCube";
 
     private int _minCubesOnScene = 5;
@@ -20,6 +20,9 @@ public class GameManager : MonoBehaviour
         get { return _currentCubesOnScene; }
         set { _currentCubesOnScene = value; }
     }
+
+    private bool _isGameRunning = false;
+    public bool IsGameRunning => _isGameRunning;
 
     private Vector3 _screenWorldScaleSize;
     private float _xMin, _xMax, _yMin, _yMax;
@@ -50,7 +53,7 @@ public class GameManager : MonoBehaviour
         UIDocument uiDoc = GetComponent<UIDocument>();
 
         _desingManager = new DesignManager();
-        _desingManager.Init(uiDoc);
+        _desingManager.Init(uiDoc, this);
 
 
         _poolingSystemManager = new CubesPoolingManager(poolStartSize, this);
@@ -70,6 +73,8 @@ public class GameManager : MonoBehaviour
         {
             AddNewCubeToScene();
         }
+
+        _isGameRunning = true;
     }
 
     void Update()
@@ -204,6 +209,24 @@ public class GameManager : MonoBehaviour
             _desingManager.OnPointsUpdate(points);
         }
 
+        if (points >= maxPoints)
+        {
+            _isGameRunning = false;
+            _desingManager.OnWin();
+        }
 
+    }
+
+    public void OnPlayAgain()
+    {
+        points = 0;
+        SetCubesPositionRange();
+
+        for (int i = 0; i < _minCubesOnScene; i++)
+        {
+            AddNewCubeToScene();
+        }
+
+        _isGameRunning = true;
     }
 }

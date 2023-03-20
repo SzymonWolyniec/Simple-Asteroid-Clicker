@@ -34,7 +34,9 @@ public class SingleCube : MonoBehaviour
         _gameManager.PoolingSystemManager.ReturnSingleItem(this.gameObject);
 
         _gameManager.CurrentCubesOnScene -= 1;
-        _gameManager.AddNewCubeToScene();
+
+        if (_gameManager.IsGameRunning)
+            _gameManager.AddNewCubeToScene();
     }
 
     public void AddGameManager(GameManager gameManager)
