@@ -1,9 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameManager : MonoBehaviour
 {
+
+    private DesignManager _desingManager;
+
+    private int points = 0;
+    private int maxPoints = 15;
     private const string CUBE_TAG = "GameCube";
 
     private int _minCubesOnScene = 5;
@@ -41,6 +47,12 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        UIDocument uiDoc = GetComponent<UIDocument>();
+
+        _desingManager = new DesignManager();
+        _desingManager.Init(uiDoc);
+
+
         _poolingSystemManager = new CubesPoolingManager(poolStartSize, this);
         _poolingSystemManager.PreparePool();
     }
@@ -98,7 +110,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void AddNewCubeToScene()
+    public void AddNewCubeToScene()
     {
         GameObject newCube = _poolingSystemManager.GetSingleItem();
         float randomX, randomY;
@@ -182,5 +194,16 @@ public class GameManager : MonoBehaviour
     public string GetCubeTag()
     {
         return CUBE_TAG;
+    }
+
+    public void AddPoint()
+    {
+        if (points < maxPoints)
+        {
+            points++;
+            _desingManager.OnPointsUpdate(points);
+        }
+
+
     }
 }

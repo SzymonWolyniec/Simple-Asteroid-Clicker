@@ -6,8 +6,8 @@ public class SingleCube : MonoBehaviour
 {
     private GameManager _gameManager;
 
-    float minTimeToDeactivate = 500.0f;
-    float maxTimeToDeactivate = 1000.0f;
+    float minTimeToDeactivate = 1.0f;
+    float maxTimeToDeactivate = 3.0f;
 
     private Coroutine _deactivateCoroutine;
 
@@ -32,6 +32,9 @@ public class SingleCube : MonoBehaviour
 
         _cubeRenderer.material.color = Color.white;
         _gameManager.PoolingSystemManager.ReturnSingleItem(this.gameObject);
+
+        _gameManager.CurrentCubesOnScene -= 1;
+        _gameManager.AddNewCubeToScene();
     }
 
     public void AddGameManager(GameManager gameManager)
@@ -55,6 +58,7 @@ public class SingleCube : MonoBehaviour
                         _gameManager.PoolingSystemManager.ReturnSingleItem(this.gameObject);
 
                         _gameManager.CurrentCubesOnScene -= 1;
+                        _gameManager.AddPoint();
                         _gameManager.TryAddNewCubesToScene();
                     }
                 }
